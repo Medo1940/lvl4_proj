@@ -1,0 +1,494 @@
+{
+  "info": {
+    "name": "E-Commerce MVC REST API Collection",
+    "description": "Comprehensive test collection for the e-commerce backend built with Express, Node.js, and Mongoose.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "GET All Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/categories",
+              "host": ["{{url}}"],
+              "path": ["categories"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response is success status\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql(\"success\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST Create Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Stationery\",\n  \"description\": \"Notebooks, pens, and paper supplies for classes.\"\n}"
+            },
+            "url": {
+              "raw": "{{url}}/categories",
+              "host": ["{{url}}"],
+              "path": ["categories"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.status === \"success\" && jsonData.data.category) {",
+                  "    pm.environment.set(\"categoryId\", jsonData.data.category._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET Category by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/categories/{{categoryId}}",
+              "host": ["{{url}}"],
+              "path": ["categories", "{{categoryId}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "PUT Update Category",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"All types of high quality school and office stationery items.\"\n}"
+            },
+            "url": {
+              "raw": "{{url}}/categories/{{categoryId}}",
+              "host": ["{{url}}"],
+              "path": ["categories", "{{categoryId}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "DELETE Category",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/categories/{{categoryId}}",
+              "host": ["{{url}}"],
+              "path": ["categories", "{{categoryId}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Verify status code is 200 or 400\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 400]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "GET All Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/products",
+              "host": ["{{url}}"],
+              "path": ["products"]
+            }
+          }
+        },
+        {
+          "name": "GET Products with Price Filter",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/products?minPrice=20&maxPrice=100",
+              "host": ["{{url}}"],
+              "path": ["products"],
+              "query": [
+                {
+                  "key": "minPrice",
+                  "value": "20"
+                },
+                {
+                  "key": "maxPrice",
+                  "value": "100"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET Products with Search Query",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/products?search=laptop",
+              "host": ["{{url}}"],
+              "path": ["products"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "laptop"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST Create Product",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Premium Sketchbook\",\n  \"description\": \"A4 sized sketchbook with 120 pages of 150GSM drawing paper.\",\n  \"price\": 14.99,\n  \"category\": \"{{categoryId}}\",\n  \"stock\": 25\n}"
+            },
+            "url": {
+              "raw": "{{url}}/products",
+              "host": ["{{url}}"],
+              "path": ["products"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.status === \"success\" && jsonData.data.product) {",
+                  "    pm.environment.set(\"productId\", jsonData.data.product._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET Product by ID (with populate)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/products/{{productId}}",
+              "host": ["{{url}}"],
+              "path": ["products", "{{productId}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Category contains detail instead of just ID\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data.product.category).to.be.an('object');",
+                  "    pm.expect(jsonData.data.product.category.name).to.exist;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "PUT Update Product",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": 12.49,\n  \"stock\": 30\n}"
+            },
+            "url": {
+              "raw": "{{url}}/products/{{productId}}",
+              "host": ["{{url}}"],
+              "path": ["products", "{{productId}}"]
+            }
+          }
+        },
+        {
+          "name": "DELETE Product",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/products/{{productId}}",
+              "host": ["{{url}}"],
+              "path": ["products", "{{productId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cart",
+      "item": [
+        {
+          "name": "GET View Cart",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/cart",
+              "host": ["{{url}}"],
+              "path": ["cart"]
+            }
+          }
+        },
+        {
+          "name": "POST Add Item to Cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"{{productId}}\",\n  \"quantity\": 2\n}"
+            },
+            "url": {
+              "raw": "{{url}}/cart",
+              "host": ["{{url}}"],
+              "path": ["cart"]
+            }
+          }
+        },
+        {
+          "name": "PUT Update Cart Item Quantity",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 5\n}"
+            },
+            "url": {
+              "raw": "{{url}}/cart/{{productId}}",
+              "host": ["{{url}}"],
+              "path": ["cart", "{{productId}}"]
+            }
+          }
+        },
+        {
+          "name": "DELETE Remove Cart Item",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/cart/{{productId}}",
+              "host": ["{{url}}"],
+              "path": ["cart", "{{productId}}"]
+            }
+          }
+        },
+        {
+          "name": "DELETE Clear Cart",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/cart",
+              "host": ["{{url}}"],
+              "path": ["cart"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "POST Checkout Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"shippingAddress\": \"123 Education Street, Learning District\"\n}"
+            },
+            "url": {
+              "raw": "{{url}}/orders",
+              "host": ["{{url}}"],
+              "path": ["orders"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.status === \"success\" && jsonData.data.order) {",
+                  "    pm.environment.set(\"orderId\", jsonData.data.order._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET All Orders",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/orders",
+              "host": ["{{url}}"],
+              "path": ["orders"]
+            }
+          }
+        },
+        {
+          "name": "GET Order by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/orders/{{orderId}}",
+              "host": ["{{url}}"],
+              "path": ["orders", "{{orderId}}"]
+            }
+          }
+        },
+        {
+          "name": "PUT Update Order Status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"shipped\"\n}"
+            },
+            "url": {
+              "raw": "{{url}}/orders/{{orderId}}/status",
+              "host": ["{{url}}"],
+              "path": ["orders", "{{orderId}}", "status"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
