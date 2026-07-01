@@ -70,7 +70,8 @@ exports.getProducts = asyncHandler(async (req, res, next) => {
 // Route: GET /api/products/:id
 exports.getProduct = asyncHandler(async (req, res, next) => {
   // .populate('category') replaces the category ID with the actual category details
-  const product = await Product.findById(req.params.id).populate('category');
+  const product = 
+  await Product.findById(req.params.id).populate('category');
 
   if (!product) {
     return next(new AppError('No product found with that ID.', 404));

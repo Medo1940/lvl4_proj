@@ -18,7 +18,10 @@ const cartItemSchema = new mongoose.Schema({
     }
   }
 });
-
+// {"userId": "default_user", 
+//   "items": [{"product": "64b4c6c8e4f6d0f9d1e4e8e5", "quantity": 1},
+//      {"product": "64b4c6c8e4f6d0f9d1e4e8e5", "quantity": 1}],
+//       "totalPrice": 0}
 // Define the blueprint for the entire Cart
 const cartSchema = new mongoose.Schema(
   {
