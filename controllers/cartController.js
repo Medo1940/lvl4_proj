@@ -3,165 +3,180 @@ const Product = require('../models/Product');
 const AppError = require('../utils/AppError');
 const asyncHandler = require('../utils/asyncHandler');
 
-// HELPER: Recalculate the cart's total price dynamically
+// HELPER FUNCTION: Recalculate total price of cart
 const calculateCartTotal = async (cart) => {
   let total = 0;
-  // Ensure the product details are populated so we can access their price fields
+  // populate product to get their prices
   await cart.populate('items.product');
   
   cart.items.forEach((item) => {
     if (item.product) {
-      total += item.product.price * item.quantity;
+      total = total + (item.product.price * item.quantity);
     }
   });
 
-  // Round the total price to 2 decimal places (e.g. 59.99 instead of 59.98999999)
+  // round to 2 decimal places so it looks nice
   cart.totalPrice = Math.round(total * 100) / 100;
 };
 
-// 1. VIEW CART
+// 1. GET CART
 // Route: GET /api/cart
 exports.getCart = asyncHandler(async (req, res, next) => {
-  // Find the cart for default_user, or create one if it doesn't exist yet
+  console.log("Fetching cart for user...");
+  
+  // Find cart for default_user, create it if it doesn't exist
   let cart = await Cart.findOne({ userId: 'default_user' }).populate('items.product');
 
   if (!cart) {
+    console.log("No cart found, creating a new empty cart.");
     cart = await Cart.create({ userId: 'default_user', items: [], totalPrice: 0 });
   }
 
   res.status(200).json({
     status: 'success',
     data: {
-      cart
+      cart: cart
     }
   });
 });
 
-// 2. ADD ITEM TO CART
+// 2. ADD MOVIE TO CART
 // Route: POST /api/cart
 // Request Body: { productId, quantity }
 exports.addToCart = asyncHandler(async (req, res, next) => {
-  const { productId, quantity } = req.body;
+  const productId = req.body.productId;
+  const quantity = req.body.quantity;
+  
   const quantityToAdd = Number(quantity) || 1;
+
+  console.log("Adding " + quantityToAdd + " tickets of movie " + productId + " to cart.");
 
   if (quantityToAdd <= 0) {
     return next(new AppError('Quantity must be at least 1.', 400));
   }
 
-  // 2.1 Find the product to verify it exists and check its stock
+  // Find the movie first
   const product = await Product.findById(productId);
   if (!product) {
+    console.log("Movie not found.");
     return next(new AppError('No product found with that ID.', 404));
   }
 
-  // 2.2 Get or create the cart
+  // Get user's cart
   let cart = await Cart.findOne({ userId: 'default_user' });
   if (!cart) {
     cart = await Cart.create({ userId: 'default_user', items: [], totalPrice: 0 });
   }
 
-  // 2.3 Check if product is already in the cart
+  // Check if this movie is already in the cart
   const itemIndex = cart.items.findIndex(
-    (item) => item.product.toString() === productId
+    (item) => item.product.toString() == productId
   );
 
   if (itemIndex > -1) {
-    // Product exists in cart - check stock for total new quantity
+    // If it exists in cart, check stock limits
     const newQuantity = cart.items[itemIndex].quantity + quantityToAdd;
     if (newQuantity > product.stock) {
+      console.log("Not enough tickets in stock.");
       return next(
         new AppError(
-          `Cannot add ${quantityToAdd} more of this item. You already have ${cart.items[itemIndex].quantity} in cart, and total stock is ${product.stock}.`,
+          'Cannot add more tickets. You already have ' + cart.items[itemIndex].quantity + ' in cart, and total available seats are ' + product.stock + '.',
           400
         )
       );
     }
-    // Update quantity
     cart.items[itemIndex].quantity = newQuantity;
   } else {
-    // Product does not exist in cart - check stock first
+    // If not in cart, check stock first
     if (quantityToAdd > product.stock) {
+      console.log("Requested quantity exceeds stock.");
       return next(
         new AppError(
-          `Cannot add ${quantityToAdd} item(s) to cart. Only ${product.stock} left in stock.`,
+          'Cannot add ' + quantityToAdd + ' tickets. Only ' + product.stock + ' left in stock.',
           400
         )
       );
     }
-    // Add new item
     cart.items.push({ product: productId, quantity: quantityToAdd });
   }
 
-  // 2.4 Recalculate total price and save
+  // recalculate total price and save
   await calculateCartTotal(cart);
   await cart.save();
 
-  // Re-populate and return the updated cart
+  // Populate products to show details in the response
   await cart.populate('items.product');
+
+  console.log("Tickets added to cart successfully!");
 
   res.status(200).json({
     status: 'success',
     message: 'Product added to cart successfully.',
     data: {
-      cart
+      cart: cart
     }
   });
 });
 
-// 3. UPDATE CART ITEM QUANTITY
+// 3. UPDATE QUANTITY OF CART ITEM
 // Route: PUT /api/cart/:productId
 // Request Body: { quantity }
 exports.updateCartItem = asyncHandler(async (req, res, next) => {
-  const { productId } = req.params;
+  const productId = req.params.productId;
   const newQuantity = Number(req.body.quantity);
+
+  console.log("Updating tickets quantity for movie: " + productId + " to " + newQuantity);
 
   if (!newQuantity || newQuantity <= 0) {
     return next(new AppError('Quantity must be at least 1. To remove an item, use the delete method.', 400));
   }
 
-  // 3.1 Verify product exists and check its stock
+  // Check if movie exists and has enough stock
   const product = await Product.findById(productId);
   if (!product) {
+    console.log("Movie not found.");
     return next(new AppError('No product found with that ID.', 404));
   }
 
   if (newQuantity > product.stock) {
+    console.log("Insufficient stock for update.");
     return next(
       new AppError(
-        `Cannot update quantity to ${newQuantity}. Only ${product.stock} items left in stock.`,
+        'Cannot update quantity to ' + newQuantity + '. Only ' + product.stock + ' seats left.',
         400
       )
     );
   }
 
-  // 3.2 Find the cart
+  // Find the cart
   const cart = await Cart.findOne({ userId: 'default_user' });
   if (!cart) {
     return next(new AppError('No cart found for this user.', 404));
   }
 
-  // 3.3 Find the item in the cart
+  // Find the movie inside items array
   const itemIndex = cart.items.findIndex(
-    (item) => item.product.toString() === productId
+    (item) => item.product.toString() == productId
   );
 
-  if (itemIndex === -1) {
+  if (itemIndex == -1) {
     return next(new AppError('Product not found in your cart.', 404));
   }
 
-  // 3.4 Update item quantity and total price
+  // Update item quantity
   cart.items[itemIndex].quantity = newQuantity;
   await calculateCartTotal(cart);
   await cart.save();
 
-  // Populate and send back
   await cart.populate('items.product');
+
+  console.log("Cart item updated successfully.");
 
   res.status(200).json({
     status: 'success',
     message: 'Cart item updated successfully.',
     data: {
-      cart
+      cart: cart
     }
   });
 });
@@ -169,43 +184,49 @@ exports.updateCartItem = asyncHandler(async (req, res, next) => {
 // 4. REMOVE ITEM FROM CART
 // Route: DELETE /api/cart/:productId
 exports.removeFromCart = asyncHandler(async (req, res, next) => {
-  const { productId } = req.params;
+  const productId = req.params.productId;
+  console.log("Removing movie " + productId + " from cart...");
 
   const cart = await Cart.findOne({ userId: 'default_user' });
   if (!cart) {
     return next(new AppError('No cart found for this user.', 404));
   }
 
-  // Check if item exists in the cart
+  // Check if item is in the cart
   const itemExists = cart.items.some(
-    (item) => item.product.toString() === productId
+    (item) => item.product.toString() == productId
   );
 
   if (!itemExists) {
+    console.log("Movie is not in user's cart.");
     return next(new AppError('Product not found in your cart.', 404));
   }
 
-  // Filter out the item
-  cart.items = cart.items.filter((item) => item.product.toString() !== productId);
+  // filter out the product
+  cart.items = cart.items.filter((item) => item.product.toString() != productId);
 
-  // Recalculate and save
+  // Recalculate total price and save
   await calculateCartTotal(cart);
   await cart.save();
 
   await cart.populate('items.product');
 
+  console.log("Movie removed from cart.");
+
   res.status(200).json({
     status: 'success',
     message: 'Product removed from cart successfully.',
     data: {
-      cart
+      cart: cart
     }
   });
 });
 
-// 5. CLEAR CART
+// 5. CLEAR ENTIRE CART
 // Route: DELETE /api/cart
 exports.clearCart = asyncHandler(async (req, res, next) => {
+  console.log("Clearing all items from user's cart...");
+  
   const cart = await Cart.findOne({ userId: 'default_user' });
   
   if (!cart) {
@@ -216,11 +237,14 @@ exports.clearCart = asyncHandler(async (req, res, next) => {
   cart.totalPrice = 0;
   await cart.save();
 
+  console.log("Cart cleared successfully.");
+
   res.status(200).json({
     status: 'success',
     message: 'Cart cleared successfully.',
     data: {
-      cart
+      cart: cart
     }
   });
 });
+

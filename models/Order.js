@@ -1,31 +1,31 @@
 const mongoose = require('mongoose');
 
-// Define details of products purchased in this order.
-// We save the product name and price directly here as a snapshot, 
-// because if a product's price changes later, the historical order price should stay the same.
+// This schema saves the items purchased in the order
+// We save the movie name and price at checkout time directly,
+// because if prices change later, our order history price shouldn't change
 const orderItemSchema = new mongoose.Schema({
   product: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Product',
-    required: [true, 'Order item must link to a product.']
+    ref: 'Product', // references the movie
+    required: [true, 'Order item must link to a movie.']
   },
   name: {
     type: String,
-    required: [true, 'Order item must have a product name at checkout.']
+    required: [true, 'Order item needs the movie name.']
   },
   price: {
     type: Number,
-    required: [true, 'Order item must record the product price at checkout.'],
+    required: [true, 'Order item needs the movie price.'],
     min: [0, 'Price cannot be negative.']
   },
   quantity: {
     type: Number,
-    required: [true, 'Order item must record the quantity purchased.'],
+    required: [true, 'Order item needs a quantity.'],
     min: [1, 'Quantity must be at least 1.']
   }
 });
 
-// Define the schema for the Order
+// This schema defines the main Order details
 const orderSchema = new mongoose.Schema(
   {
     userId: {
@@ -33,30 +33,32 @@ const orderSchema = new mongoose.Schema(
       default: 'default_user',
       required: true
     },
-    items: [orderItemSchema], // Snapshot of items bought
+    items: [orderItemSchema], // list of purchased movies
     totalPrice: {
       type: Number,
-      required: [true, 'An order must have a total price.']
+      required: [true, 'An order needs a total price.']
     },
     status: {
       type: String,
       enum: {
         values: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'],
-        message: 'Status must be either: pending, processing, shipped, delivered, or cancelled.'
+        message: 'Status must be: pending, processing, shipped, delivered, or cancelled.'
       },
       default: 'pending'
     },
     shippingAddress: {
       type: String,
-      required: [true, 'Please provide a shipping address. We need to know where to ship your items!'],
+      required: [true, 'Please write down an address (or email/details for tickets).'],
       trim: true
     }
   },
   {
-    timestamps: true // Captures when order was created (createdAt) and updated
+    // tracks when order was created and updated
+    timestamps: true
   }
 );
 
 const Order = mongoose.model('Order', orderSchema);
 
 module.exports = Order;
+

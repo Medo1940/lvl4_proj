@@ -2,10 +2,10 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const { connectDB, disconnectDB } = require('../config/db');
 
-// Load environment variables first
+// load env variables
 dotenv.config();
 
-// Import our models so we can interact with the database
+// import models to write data to database
 const Category = require('../models/Category');
 const Product = require('../models/Product');
 const Cart = require('../models/Cart');
@@ -13,115 +13,118 @@ const Order = require('../models/Order');
 
 const seedData = async () => {
   try {
-    // 1. Connect to the database
+    // 1. connect to database
     await connectDB();
 
-    console.log('--- Database Cleanup Started ---');
-    // 2. Clear out any old data to start fresh
+    console.log('--- CLEANING DATABASE FIRST ---');
+    
+    // delete everything to start fresh
     await Category.deleteMany();
-    console.log('🗑️  All categories deleted.');
+    console.log('Categories deleted!');
     
     await Product.deleteMany();
-    console.log('🗑️  All products deleted.');
+    console.log('Products (Movies) deleted!');
     
     await Cart.deleteMany();
-    console.log('🗑️  All carts deleted.');
+    console.log('Carts deleted!');
     
     await Order.deleteMany();
-    console.log('🗑️  All orders deleted.');
+    console.log('Orders deleted!');
     
-    console.log('--- Database Cleanup Completed ---\n');
+    console.log('--- CLEANING DONE --- \n');
 
-    console.log('--- Seeding Categories Started ---');
-    // 3. Create sample categories
+    console.log('--- SEEDING ANIME CATEGORIES (GENRES) ---');
+    
     const categoriesData = [
       {
-        name: 'Electronics',
-        description: 'Gadgets, devices, and high-tech computing accessories.'
+        name: 'Action & Shonen',
+        description: 'Exciting battles, cool fighting scenes, and epic journeys!'
       },
       {
-        name: 'Books',
-        description: 'Educational, fiction, and non-fiction reading materials.'
+        name: 'Fantasy & Magic',
+        description: 'Mystical worlds, magical creatures, and supernatural powers.'
       },
       {
-        name: 'Clothing',
-        description: 'Stylish apparel, comfortable shoes, and accessories.'
+        name: 'Slice of Life & Drama',
+        description: 'Heartwarming stories, daily life, and emotional school dramas.'
       }
     ];
 
-    // Insert categories and store them in a variable so we can access their _ids
+    // save categories to db and get their IDs
     const seededCategories = await Category.insertMany(categoriesData);
-    console.log(`✅ Seeded ${seededCategories.length} categories.`);
+    console.log("Seeded " + seededCategories.length + " categories successfully.");
     
-    // Create a map to find categories by name easily
+    // create a simple map of names to category IDs
     const categoryMap = {};
     seededCategories.forEach((cat) => {
       categoryMap[cat.name] = cat._id;
     });
-    console.log('--- Seeding Categories Completed ---\n');
+    console.log('--- ANIME CATEGORIES DONE --- \n');
 
-    console.log('--- Seeding Products Started ---');
-    // 4. Create sample products and assign the correct category ObjectId
+    console.log('--- SEEDING ANIME MOVIES ---');
+    
     const productsData = [
       {
-        name: 'Gaming Laptop',
-        description: 'High-performance laptop with 16GB RAM and RTX Graphic Card.',
-        price: 999.99,
-        stock: 10,
-        category: categoryMap['Electronics'] // Reference to Electronics Category
+        name: 'Demon Slayer: Mugen Train',
+        description: 'Tanjiro and his friends board a train to help Kyojuro Rengoku fight demons.',
+        price: 14.99,
+        stock: 100, // available tickets/copies
+        category: categoryMap['Action & Shonen']
       },
       {
-        name: 'Wireless Mouse',
-        description: 'Ergonomic 2.4GHz wireless mouse with adjustable DPI.',
-        price: 24.99,
-        stock: 50,
-        category: categoryMap['Electronics']
-      },
-      {
-        name: 'Introduction to Algorithms',
-        description: 'A comprehensive guide to understanding programming algorithms.',
-        price: 59.99,
-        stock: 30,
-        category: categoryMap['Books'] // Reference to Books Category
-      },
-      {
-        name: 'Sci-Fi Novel',
-        description: 'An exciting space odyssey set in the year 3000.',
+        name: 'Jujutsu Kaisen 0',
+        description: 'Yuta Okkotsu joins Jujutsu High after being haunted by his childhood friend.',
         price: 12.99,
-        stock: 100,
-        category: categoryMap['Books']
+        stock: 80,
+        category: categoryMap['Action & Shonen']
       },
       {
-        name: 'Cotton Hoodie',
-        description: 'Super soft, warm fleece hoodie. Perfect for winter.',
-        price: 39.99,
-        stock: 25,
-        category: categoryMap['Clothing'] // Reference to Clothing Category
+        name: 'Spirited Away',
+        description: 'Chihiro enters a world ruled by gods, witches, and spirits, where her parents turn into pigs.',
+        price: 19.99,
+        stock: 150,
+        category: categoryMap['Fantasy & Magic']
       },
       {
-        name: 'Running Sneakers',
-        description: 'Lightweight and breathable sneakers with shock absorption.',
-        price: 79.99,
-        stock: 15,
-        category: categoryMap['Clothing']
+        name: 'Howls Moving Castle',
+        description: 'Sophie is cursed by a witch and meets the wizard Howl in his walking castle.',
+        price: 17.99,
+        stock: 120,
+        category: categoryMap['Fantasy & Magic']
+      },
+      {
+        name: 'Your Name',
+        description: 'Mitsuha and Taki, two high school strangers, wake up to find they swapped bodies.',
+        price: 15.99,
+        stock: 200,
+        category: categoryMap['Slice of Life & Drama']
+      },
+      {
+        name: 'A Silent Voice',
+        description: 'Shoya, a former bully, tries to make amends with Shoko, a deaf girl he bullied in school.',
+        price: 11.99,
+        stock: 90,
+        category: categoryMap['Slice of Life & Drama']
       }
     ];
 
+    // save products (movies) to db
     const seededProducts = await Product.insertMany(productsData);
-    console.log(`✅ Seeded ${seededProducts.length} products.`);
-    console.log('--- Seeding Products Completed ---\n');
+    console.log("Seeded " + seededProducts.length + " anime movies successfully.");
+    console.log('--- ANIME MOVIES DONE --- \n');
 
-    console.log('🎉 Database seeding completed successfully!');
-    // 5. Exit the script successfully
+    console.log('Database seeding finished!! Everything is ready.');
+    
+    // disconnect database
     await disconnectDB();
     process.exit(0);
   } catch (error) {
-    console.error(`💥 Seeding failed with error: ${error.message}`);
-    // Exit with failure code (1)
+    console.log("Error in seeding script: " + error.message);
     await disconnectDB();
     process.exit(1);
   }
 };
 
-// Execute the seed function
+// run it!
 seedData();
+

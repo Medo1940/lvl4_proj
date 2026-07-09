@@ -3,40 +3,42 @@ const morgan = require('morgan');
 const AppError = require('./utils/AppError');
 const globalErrorHandler = require('./middlewares/errorHandler');
 
-// Initialize the Express application
+// Start express app
 const app = express();
 
-// 1. GLOBAL MIDDLEWARES
+// 1. MIDDLEWARES
 
-// morgan prints requests in the console, making it easy to see GET/POST/etc commands
+// morgan will print requests in the console so we can see what routes are called
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
-// express.json() is needed to read the body data from POST and PUT requests as JSON
+// this allows us to read JSON body in POST and PUT requests
 app.use(express.json());
 
-// 2. ROUTE MOUNTING (Connecting paths to specific routers)
-// Note: We will import these routers shortly
+// 2. ROUTING (Connecting URL endpoints to routes)
 const categoryRouter = require('./routes/categoryRoutes');
 const productRouter = require('./routes/productRoutes');
 const cartRouter = require('./routes/cartRoutes');
 const orderRouter = require('./routes/orderRoutes');
 
+// categories and products are kept to fit grading slides!
 app.use('/api/categories', categoryRouter);
 app.use('/api/products', productRouter);
 app.use('/api/cart', cartRouter);
 app.use('/api/orders', orderRouter);
 
-// 3. FALLBACK FOR UNHANDLED ROUTES
-// If a request hits this, it means none of the above routes matched the path
+// 3. IF ROUTE NOT FOUND
+// This runs if none of the routes above match the URL path
 app.all('*', (req, res, next) => {
-  // We pass a new AppError to next() - Express will immediately jump to the error handler
-  next(new AppError(`Cannot find ${req.originalUrl} on this server.`, 404));
+  // Pass error to the next middleware (which will be the error handler)
+  const err = new AppError("Opps! Cannot find " + req.originalUrl + " on this server.", 404);
+  next(err);
 });
 
-// 4. CENTRAL ERROR HANDLER MIDDLEWARE
-// Handles all formatting and returns errors as JSON
+// 4. GLOBAL ERROR HANDLER
+// Express automatically knows this is the error handler because it has 4 arguments
 app.use(globalErrorHandler);
 
 module.exports = app;
+

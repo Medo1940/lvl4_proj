@@ -3,16 +3,17 @@ const orderController = require('../controllers/orderController');
 
 const router = express.Router();
 
-// Route: /api/orders
+// Routes for "/api/orders"
 router
   .route('/')
-  .get(orderController.getOrders)
-  .post(orderController.checkout);
+  .get(orderController.getOrders) // get all order history
+  .post(orderController.checkout); // checkout cart to place order
 
-// Route: /api/orders/:id
-router.route('/:id').get(orderController.getOrder);
+// Routes for "/api/orders/:id"
+router.route('/:id').get(orderController.getOrder); // get one order detail
 
-// Route: /api/orders/:id/status
+// Routes for "/api/orders/:id/status" (to change order status)
 router.route('/:id/status').put(orderController.updateOrderStatus);
 
 module.exports = router;
+

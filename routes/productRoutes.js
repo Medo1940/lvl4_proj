@@ -3,17 +3,18 @@ const productController = require('../controllers/productController');
 
 const router = express.Router();
 
-// Route: /api/products
+// Routes for "/api/products" (anime movies)
 router
   .route('/')
-  .get(productController.getProducts)
-  .post(productController.createProduct);
+  .get(productController.getProducts) // get all movies (with search filters)
+  .post(productController.createProduct); // create a movie
 
-// Route: /api/products/:id
+// Routes for "/api/products/:id"
 router
   .route('/:id')
-  .get(productController.getProduct)
-  .put(productController.updateProduct)
-  .delete(productController.deleteProduct);
+  .get(productController.getProduct) // get details of 1 movie
+  .put(productController.updateProduct) // update movie details
+  .delete(productController.deleteProduct); // delete movie
 
 module.exports = router;
+

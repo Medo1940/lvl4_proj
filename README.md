@@ -1,200 +1,113 @@
-# E-Commerce REST API - Grade 10 Educational Guide 🚀
+# Anime Movie Ticket & Rental REST API - Student Guide 🎬🍿
 
-Welcome to the **E-Commerce REST API**! This project is a complete, educational backend built with **Node.js**, **Express.js**, and **MongoDB (Mongoose)** using the **MVC (Model-View-Controller)** design pattern.
+Welcome to the **Anime Movie Ticket & Rental REST API**! This project is a complete backend API built with **Node.js**, **Express.js**, and **MongoDB (Mongoose)** using the **MVC (Model-View-Controller)** project folder structure.
 
-This guide is designed for 10th-grade programming students. We will explain **every folder, every command, and every key line of code** so you can learn how modern web servers work!
+This guide will explain **what every folder does, the commands to run, and the URL endpoints** so you can learn how our web server works!
 
 ---
 
 ## 🏗️ What is MVC? (Model-View-Controller)
-MVC is a smart way to organize our project folders so that each part of our code has only **one job**. Think of it like a restaurant:
+MVC is a neat way to organize our project folders so that each part of our code has only **one job**:
 
-```
-  [CLIENT / USER]  <--->  [ROUTES / CONTROLLER]  <--->  [MODELS]  <--->  [DATABASE]
-    (Customer)                 (Waiter)                (Chef)           (Pantry)
-```
-1.  **Model (The Chef)**: Defines how our data looks. It knows the recipes (schemas) and how to talk to the database (pantry).
-2.  **View (The Food)**: The final data sent back to the customer. In a REST API, we send back **JSON data** (text-based data).
-3.  **Controller (The Waiter)**: Takes the customer's request (e.g. "I want to buy a laptop"), talks to the Chef (Model) to get the database records, performs calculations (like checking if there is enough stock), and brings the result back to the customer.
+1. **Model**: Defines how our database tables (collections) look. It defines the schemas (blueprints) for Genres, Movies, Carts, and Orders.
+2. **View**: The response data we send back to the user. In our API, we return **JSON data** (text-based format).
+3. **Controller**: Contains the main coding logic. It handles what happens when you fetch movies, search, add a ticket to the cart, or checkout.
 
 ---
 
-## 📂 Project Folder Structure
-Here is how our code folders are organized:
+## 📂 Project Folders
+Here is how our project is organized:
 
-*   **`config/`**: Holds our database connection settings (`db.js`).
-*   **`models/`**: Defines our data structures (schemas for Categories, Products, Carts, and Orders).
-*   **`controllers/`**: Contains the business logic of our API (what happens when you add to cart or checkout).
-*   **`routes/`**: Connects URL endpoints (like `/api/products`) to the correct controller functions.
-*   **`middlewares/`**: Code that runs in between requests (like our Global Error Handler).
-*   **`utils/`**: Helper files (`asyncHandler.js` to clean up code, `AppError.js` to create errors).
-*   **`scripts/`**: Houses utility scripts like `seed.js` to fill our database with initial sample products.
+* **`config/`**: Contains database settings and the connection file (`db.js`).
+* **`models/`**: Defines our data structures (schemas for Categories, Products, Carts, and Orders).
+* **`controllers/`**: Contains the code logic of our API (handling movie searches, cart additions, or checkouts).
+* **`routes/`**: Links URL endpoints (like `/api/products`) to the correct controller functions.
+* **`middlewares/`**: Code that runs in the middle of a request (like printing logs or catching errors).
+* **`utils/`**: Helper files (like custom error creators and clean async wrappers).
+* **`scripts/`**: Contains `seed.js` which fills our database with sample anime categories and movies!
 
 ---
 
-## ⚙️ Prerequisites & Setup Guide
+## ⚙️ How to Setup and Run the App
 
 ### 1. Requirements
-*   **Node.js**: Install Node.js (version 18 or 20). Download it from [nodejs.org](https://nodejs.org/).
-*   **Postman**: A free tool to test our API endpoints. Download it from [postman.com](https://www.postman.com/).
-*   **MongoDB**: (Optional) MongoDB Server. **Do not worry if you don't have it installed!** Our project is built with an **automatic in-memory fallback**. If it detects your local MongoDB is offline, it will automatically spin up a temporary database in the background!
+* **Node.js**: Download and install it from [nodejs.org](https://nodejs.org/).
+* **Postman**: Download and install it from [postman.com](https://www.postman.com/) to send API requests.
+* **MongoDB**: (Optional) If you don't have it installed, don't worry! Our app will automatically start a temporary in-memory database in your computer RAM if it can't find a local MongoDB server.
 
-### 2. Step-by-Step Installation Commands
+### 2. Steps to Run
+Open your terminal (PowerShell on Windows) inside the project folder and run these:
 
-Open your terminal (PowerShell on Windows, or Terminal on Mac) in the project folder and write these commands:
-
-#### Command A: Install Dependencies
+#### Step A: Install Packages
 ```bash
 npm install
 ```
-*   **What this does**: Reads our `package.json` file and downloads all required libraries (`express`, `mongoose`, `dotenv`, etc.) into a folder called `node_modules`.
+* Installs all the libraries (`express`, `mongoose`, `dotenv`, etc.) listed in `package.json` into a folder called `node_modules`.
 
-#### Command B: Seed Initial Data
+#### Step B: Seed Initial Anime Movies
 ```bash
 npm run seed
 ```
-*   **What this does**: Wipes the database clean and populates it with starter categories (Electronics, Books, Clothing) and products (Gaming Laptop, Wireless Mouse, etc.).
-*   *Note*: If your local MongoDB is stopped, this command will print a warning and automatically launch a temporary in-memory database, run the seeding, and shut down cleanly.
+* Wipes database clean and seeds sample categories (Action & Shonen, Fantasy & Magic, Slice of Life & Drama) and movies (*Demon Slayer*, *Spirited Away*, *Your Name*, etc.).
 
-#### Command C: Start the Server in Development Mode
+#### Step C: Run the App
 ```bash
 npm run dev
 ```
-*   **What this does**: Launches the server using `nodemon`. Nodemon will monitor your files; if you edit your code and save, the server will restart automatically!
+* Runs the server on port `5000` using `nodemon`, so it will automatically restart every time you edit your code files!
 
 ---
 
 ## 📝 Environment Variables (`.env`)
-Create a file named `.env` in the root folder of the project. This stores settings that can change without modifying our code:
+Create a file named `.env` in the root folder of the project to set settings:
 
-| Variable | Description | Example Value |
-| :--- | :--- | :--- |
-| `PORT` | The port number our server will listen on. | `5000` |
-| `MONGO_URI` | The connection string for your MongoDB database. | `mongodb://127.0.0.1:27017/ecommerce_db` |
-| `NODE_ENV` | The environment the server is running in. | `development` or `production` |
+* `PORT`: The port number our server runs on (e.g. `5000`).
+* `MONGO_URI`: The connection string for your MongoDB database (e.g. `mongodb://127.0.0.1:27017/anime_movies_db`).
+* `NODE_ENV`: Set to `development` or `production`.
 
 ---
 
 ## 🎯 API Endpoint Documentation
-Once your server is running (on `http://localhost:5000`), you can send requests to these endpoints using Postman:
 
-### 1. Categories API (`/api/categories`)
-*   `GET /api/categories` : Retrieve all categories.
-*   `GET /api/categories/:id` : Retrieve details of a single category by its ID.
-*   `POST /api/categories` : Create a new category.
-    *   *Body*: `{"name": "Stationery", "description": "Writing items"}`
-*   `PUT /api/categories/:id` : Edit a category.
-*   `DELETE /api/categories/:id` : Delete a category. **(Safe Check: Fails if products are still in it!)**
+### 1. Categories / Genres API (`/api/categories`)
+* `GET /api/categories` : Get all anime genres.
+* `GET /api/categories/:id` : Get single genre details.
+* `POST /api/categories` : Add a new genre.
+  * *Body*: `{"name": "Horror & Mystery", "description": "Spooky anime movies"}`
+* `PUT /api/categories/:id` : Edit genre details.
+* `DELETE /api/categories/:id` : Delete a genre (fails if movies are still linked to it).
 
-### 2. Products API (`/api/products`)
-*   `GET /api/products` : Retrieve all products.
-    *   *Supports Filters*: `?category=Electronics`, `?minPrice=10&maxPrice=100`, or `?search=laptop`.
-*   `GET /api/products/:id` : Retrieve details of a single product **(with full Category details populated!)**.
-*   `POST /api/products` : Create a product. **(Validates category exists first!)**
-    *   *Body*: `{"name": "Notebook", "price": 4.99, "category": "CATEGORY_ID", "stock": 10, "description": "Paper notepad"}`
-*   `PUT /api/products/:id` : Edit product details.
-*   `DELETE /api/products/:id` : Delete a product.
+### 2. Anime Movies API (`/api/products`)
+* `GET /api/products` : Get all anime movies.
+  * *Filters*: `?category=Fantasy`, `?minPrice=10&maxPrice=15`, or `?search=Name`.
+* `GET /api/products/:id` : Get details of a single anime movie with its genre populated.
+* `POST /api/products` : Add a new anime movie.
+  * *Body*: `{"name": "Weathering With You", "description": "A high-school boy meets a girl who can control weather.", "price": 13.99, "category": "GENRE_ID", "stock": 50}`
+* `PUT /api/products/:id` : Edit movie details.
+* `DELETE /api/products/:id` : Delete a movie from database.
 
-### 3. Cart API (`/api/cart`)
-*   `GET /api/cart` : View your current shopping cart and total price.
-*   `POST /api/cart` : Add an item to your cart. **(Checks stock availability!)**
-    *   *Body*: `{"productId": "PRODUCT_ID", "quantity": 3}`
-*   `PUT /api/cart/:productId` : Update quantity of a cart item.
-    *   *Body*: `{"quantity": 5}`
-*   `DELETE /api/cart/:productId` : Remove an item from your cart.
-*   `DELETE /api/cart` : Clear your cart.
+### 3. Shopping Cart API (`/api/cart`)
+* `GET /api/cart` : View your ticket cart and total price.
+* `POST /api/cart` : Add movie tickets to your cart (validates movie stock first).
+  * *Body*: `{"productId": "MOVIE_ID", "quantity": 2}`
+* `PUT /api/cart/:productId` : Update quantity of tickets in cart.
+  * *Body*: `{"quantity": 4}`
+* `DELETE /api/cart/:productId` : Remove movie tickets from cart.
+* `DELETE /api/cart` : Empty the cart.
 
-### 4. Orders API (`/api/orders`)
-*   `POST /api/orders` : Checkout your cart!
-    *   *Body*: `{"shippingAddress": "123 School Rd"}`
-    *   *What it does*: Verifies stock for all cart items, decrements item stock in database, clears your cart, and saves the order.
-*   `GET /api/orders` : Retrieve all order history.
-*   `GET /api/orders/:id` : Retrieve a specific order by ID.
-*   `PUT /api/orders/:id/status` : Update order status (Admin feature).
-    *   *Body*: `{"status": "shipped"}` (Allowed: `pending`, `processing`, `shipped`, `delivered`, `cancelled`)
-
----
-
-## 🔎 Line-by-Line Code Explanations
-
-Here is a breakdown of how the most important blocks of code work in our project:
-
-### 1. Database Automatic Fallback (`config/db.js`)
-If a student does not have MongoDB running, standard Mongoose connections will freeze. We fixed this with an automatic in-memory fallback:
-```javascript
-try {
-  // 1. Try to connect to your local database URI
-  await mongoose.connect(connURI, {
-    serverSelectionTimeoutMS: 2000 // Give up after 2 seconds if DB is offline
-  });
-} catch (connError) {
-  // 2. If it fails, start MongoMemoryServer dynamically!
-  const { MongoMemoryServer } = require('mongodb-memory-server');
-  mongod = await MongoMemoryServer.create({
-    binary: { version: '6.0.14' } // High compatibility version for Windows 10
-  });
-  connURI = mongod.getUri();
-  await mongoose.connect(connURI); // Connect to in-memory DB
-}
-```
-*   **Why this is cool**: You don't need to install database servers locally to run this project. It runs inside your RAM automatically!
-
-### 2. Mongoose ObjectId Relationship (`models/Product.js`)
-To link a Product to a Category, we use `ObjectId` references in the schema:
-```javascript
-category: {
-  type: mongoose.Schema.Types.ObjectId,
-  ref: 'Category', // Links this field to the Category model
-  required: [true, 'A product must belong to a category.']
-}
-```
-*   **What this does**: Instead of typing the category name inside every product, we store the unique `_id` of the Category document. This is called a **relational reference**.
-
-### 3. Mongoose populate() Mechanism (`controllers/productController.js`)
-When we fetch a product, MongoDB only returns the category ID. To get the actual category details, we use `.populate()`:
-```javascript
-const product = await Product.findById(req.params.id).populate('category');
-```
-*   **What this does**: Mongoose automatically runs a secondary query behind the scenes to find the Category matching the product's `category` ID, and replaces the ID with the full Category object (name, description, etc.).
-
-### 4. Checkout Stock Verification & Snapshots (`controllers/orderController.js`)
-When checking out, we do not want to buy items that are out of stock. We also want to record what price the user paid at that moment in time (in case prices change tomorrow):
-```javascript
-// 1. Check stock for every item before making changes
-for (const item of cart.items) {
-  const product = item.product;
-  if (product.stock < item.quantity) {
-    return next(new AppError(`Insufficient stock for "${product.name}".`, 400));
-  }
-  // 2. Create a snapshot of the item details (name, price)
-  orderItems.push({
-    product: product._id,
-    name: product.name,
-    price: product.price, // Snapshots the price at checkout
-    quantity: item.quantity
-  });
-}
-
-// 3. If all items have enough stock, decrement the stock in the DB
-for (const item of cart.items) {
-  const product = await Product.findById(item.product._id);
-  product.stock -= item.quantity;
-  await product.save();
-}
-```
+### 4. Ticket Orders API (`/api/orders`)
+* `POST /api/orders` : Checkout the cart to purchase tickets!
+  * *Body*: `{"shippingAddress": "user_email@gmail.com"}` (We use email to deliver tickets).
+  * Decrements the seat stock of movies in the database and clears the cart.
+* `GET /api/orders` : Retrieve order history.
+* `GET /api/orders/:id` : Get specific order details.
+* `PUT /api/orders/:id/status` : Change order status (e.g. from `pending` to `delivered`).
+  * *Body*: `{"status": "delivered"}`
 
 ---
 
-## 📮 How to Test with Postman
-
-1.  **Import the Environment**:
-    *   In Postman, click **Import** and select the `postman_environment.json` file.
-    *   Select the environment **E-Commerce MVC API Environment** in the top-right corner dropdown.
-2.  **Import the Collection**:
-    *   Click **Import** and select the `postman_collection.json` file.
-    *   This will create a folder containing Categories, Products, Cart, and Orders requests.
-3.  **Run in Order**:
-    *   Run `GET All Categories` (you will see the seed data).
-    *   Run `POST Create Category` (this will automatically save the new category ID to your Postman environment!).
-    *   Run `POST Create Product` (which uses the saved `{{categoryId}}` and automatically saves its new ID to `{{productId}}`!).
-    *   Run `POST Add Item to Cart` -> `GET View Cart` -> `POST Checkout Order` to complete the e-commerce purchase cycle.
+## 📮 Testing with Postman
+1. Open Postman.
+2. Import the environment file `postman_environment.json` and select **Anime Movie Ticket MVC API Environment** in the top right.
+3. Import the collection file `postman_collection.json`.
+4. Run requests in order: GET Categories -> POST Create Category -> POST Create Product -> POST Add Item to Cart -> POST Checkout Order.

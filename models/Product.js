@@ -1,43 +1,43 @@
 const mongoose = require('mongoose');
 
-// Define the blueprint (Schema) for a Product
+// This schema defines how an Anime Movie (Product) is saved in the database
 const productSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, 'Please provide a product name. every product needs a name!'],
-      unique: true,
+      required: [true, 'Please type the movie name!'],
+      unique: true, // we don't want duplicate movies
       trim: true,
-      minlength: [3, 'A product name must have at least 3 characters.']
+      minlength: [3, 'The movie name must have at least 3 letters.']
     },
     description: {
       type: String,
-      required: [true, 'Please provide a description for the product.'],
+      required: [true, 'Write a summary or description for this anime movie.'],
       trim: true
     },
     price: {
       type: Number,
-      required: [true, 'Please provide a price. We need to know how much the product costs.'],
-      min: [0, 'Product price cannot be negative. You cannot pay the customer to take it!']
+      required: [true, 'Please provide the ticket or rental price for this movie.'],
+      min: [0, 'Movie price cannot be less than zero. We cannot pay people to watch it!']
     },
     category: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Category', // This links the product to the Category model
-      required: [true, 'A product must belong to a category. Please link it to a category.']
+      ref: 'Category', // links the movie to its genre category
+      required: [true, 'A movie must have a category (genre). Please link it to one.']
     },
     stock: {
       type: Number,
-      required: [true, 'Please provide the stock quantity.'],
+      required: [true, 'Please enter the available seats or tickets stock.'],
       default: 0,
-      min: [0, 'Stock quantity cannot be negative. We cannot have less than zero items in stock!'],
+      min: [0, 'Stock cannot be negative.'],
       validate: {
         validator: Number.isInteger,
-        message: 'Stock quantity must be a whole number (integer). You cannot have half a product!'
+        message: 'Stock must be a whole number (integer). No half-seats allowed!'
       }
     }
   },
   {
-    // Automatically add createdAt and updatedAt tags
+    // automatically tracks when created and updated
     timestamps: true
   }
 );
@@ -45,3 +45,4 @@ const productSchema = new mongoose.Schema(
 const Product = mongoose.model('Product', productSchema);
 
 module.exports = Product;
+

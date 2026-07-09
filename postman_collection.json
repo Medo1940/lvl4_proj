@@ -1,7 +1,7 @@
 {
   "info": {
-    "name": "E-Commerce MVC REST API Collection",
-    "description": "Comprehensive test collection for the e-commerce backend built with Express, Node.js, and Mongoose.",
+    "name": "Anime Movie Ticket MVC API Collection",
+    "description": "Comprehensive test collection for the Anime Movie Ticket backend built with Express, Node.js, and Mongoose.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -49,7 +49,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Stationery\",\n  \"description\": \"Notebooks, pens, and paper supplies for classes.\"\n}"
+              "raw": "{\n  \"name\": \"Sci-Fi & Mecha\",\n  \"description\": \"Futuristic technologies, huge giant robots, and space travel.\"\n}"
             },
             "url": {
               "raw": "{{url}}/categories",
@@ -204,13 +204,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{url}}/products?search=laptop",
+              "raw": "{{url}}/products?search=Name",
               "host": ["{{url}}"],
               "path": ["products"],
               "query": [
                 {
                   "key": "search",
-                  "value": "laptop"
+                  "value": "Name"
                 }
               ]
             }
@@ -228,7 +228,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Premium Sketchbook\",\n  \"description\": \"A4 sized sketchbook with 120 pages of 150GSM drawing paper.\",\n  \"price\": 14.99,\n  \"category\": \"{{categoryId}}\",\n  \"stock\": 25\n}"
+              "raw": "{\n  \"name\": \"Evangelion: The End of Evangelion\",\n  \"description\": \"The theatrical ending to the anime series Neon Genesis Evangelion.\",\n  \"price\": 15.00,\n  \"category\": \"{{categoryId}}\",\n  \"stock\": 100\n}"
             },
             "url": {
               "raw": "{{url}}/products",
@@ -417,7 +417,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"shippingAddress\": \"123 Education Street, Learning District\"\n}"
+              "raw": "{\n  \"shippingAddress\": \"otaku_fan@gmail.com\"\n}"
             },
             "url": {
               "raw": "{{url}}/orders",

@@ -1,57 +1,58 @@
 const mongoose = require('mongoose');
 
-let mongod = null;
+let mongod = null; // this will hold our temporary database if we don't have mongodb installed
 
-// This function connects our application to the MongoDB database
+// This function connects our app to the MongoDB database
 const connectDB = async () => {
   try {
-    // We get the connection string (URI) from our .env file.
-    let connURI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/ecommerce_db';
+    // we get the connection string from env file or use a default one
+    let connURI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/anime_movies_db';
     
-    console.log(`Checking MongoDB database status at: ${connURI}...`);
+    console.log("Checking MongoDB database status at: " + connURI + " ...");
 
-    // 1. Attempt to connect to the configured URI first
+    // try to connect to the database
     try {
       await mongoose.connect(connURI, {
-        serverSelectionTimeoutMS: 2000 // Timeout quickly (2 seconds) if local DB is offline
+        serverSelectionTimeoutMS: 2000 // wait for 2 seconds only, if it fails then go to catch block
       });
-      console.log(`✅ MongoDB Connected successfully to: ${mongoose.connection.host}`);
+      console.log("Connected to MongoDB successfully! Host: " + mongoose.connection.host);
     } catch (connError) {
-      console.log(`⚠️ Local MongoDB service is offline or refused connection (Reason: ${connError.message}).`);
-      console.log(`🚀 Starting educational In-Memory MongoDB Server (v6.0.14) fallback...`);
+      console.log("Local MongoDB is offline or not running: " + connError.message);
+      console.log("Starting temporary In-Memory MongoDB Server because we cannot connect to local db...");
 
-      // 2. Load and spin up the in-memory MongoDB server
+      // load the in-memory server
       const { MongoMemoryServer } = require('mongodb-memory-server');
       mongod = await MongoMemoryServer.create({
         binary: {
-          version: '6.0.14' // Use a version that has high compatibility with Windows 10
+          version: '6.0.14' // good version for windows
         }
       });
       
       connURI = mongod.getUri();
       
-      // 3. Connect to the in-memory server
+      // connect to the in-memory server now
       await mongoose.connect(connURI);
-      console.log(`✅ Connected successfully to local in-memory MongoDB database!`);
-      console.log(`🔗 In-memory Connection URI: ${connURI}`);
+      console.log("Connected to local in-memory MongoDB database!");
+      console.log("Connection URI is: " + connURI);
     }
   } catch (error) {
-    console.error(`❌ Database connection critical error: ${error.message}`);
-    process.exit(1);
+    console.error("Database connection critical error: " + error.message);
+    process.exit(1); // stop everything
   }
 };
 
-// This function cleans up and disconnects the database connections (used in seed and tests)
+// This function stops the database (very useful for seed script)
 const disconnectDB = async () => {
   try {
     await mongoose.disconnect();
     if (mongod) {
       await mongod.stop();
-      console.log('🛑 In-memory MongoDB database stopped.');
+      console.log("In-memory MongoDB database has been stopped.");
     }
   } catch (error) {
-    console.error(`Error during database disconnect: ${error.message}`);
+    console.error("Error when disconnecting: " + error.message);
   }
 };
 
 module.exports = { connectDB, disconnectDB };
+

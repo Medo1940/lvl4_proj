@@ -6,42 +6,58 @@ const asyncHandler = require('../utils/asyncHandler');
 // 1. GET ALL CATEGORIES
 // Route: GET /api/categories
 exports.getCategories = asyncHandler(async (req, res, next) => {
+  console.log("Someone is asking for all anime categories/genres...");
+  
   const categories = await Category.find();
+
+  console.log("Found " + categories.length + " categories.");
 
   res.status(200).json({
     status: 'success',
     results: categories.length,
     data: {
-      categories
+      categories: categories
     }
   });
 });
 
-// 2. GET SINGLE CATEGORY BY ID
+// 2. GET A SINGLE CATEGORY BY ITS ID
 // Route: GET /api/categories/:id
 exports.getCategory = asyncHandler(async (req, res, next) => {
-  const category = await Category.findById(req.params.id);
+  const categoryId = req.params.id;
+  console.log("Searching for category ID: " + categoryId);
+  
+  const category = await Category.findById(categoryId);
 
-  // If no category was found with that specific ID, throw a 404 error
+  // if not found, we tell the user that the ID doesn't exist
   if (!category) {
+    console.log("Category ID not found in database.");
     return next(new AppError('No category found with that ID.', 404));
   }
 
   res.status(200).json({
     status: 'success',
     data: {
-      category
+      category: category
     }
   });
 });
 
-// 3. CREATE NEW CATEGORY
+// 3. CREATE A NEW CATEGORY
 // Route: POST /api/categories
 exports.createCategory = asyncHandler(async (req, res, next) => {
+  console.log("Creating a new category...");
+  
+  // we read the values from request body
+  const name = req.body.name;
+  const description = req.body.description;
+
   const newCategory = await Category.create({
-    name: req.body.name,
-    description: req.body.description
+    name: name,
+    description: description
   });
+
+  console.log("Category created successfully! ID is: " + newCategory._id);
 
   res.status(201).json({
     status: 'success',
@@ -54,16 +70,20 @@ exports.createCategory = asyncHandler(async (req, res, next) => {
 // 4. UPDATE CATEGORY BY ID
 // Route: PUT /api/categories/:id
 exports.updateCategory = asyncHandler(async (req, res, next) => {
+  const categoryId = req.params.id;
+  console.log("Updating category ID: " + categoryId);
+
   const updatedCategory = await Category.findByIdAndUpdate(
-    req.params.id,
+    categoryId,
     req.body,
     {
-      new: true,          // Return the modified document rather than the original
-      runValidators: true // Run schema validations (e.g. minlength) on the update payload
+      new: true,          // this returns the updated category instead of old one
+      runValidators: true // this makes sure validations are checked (e.g. minlength)
     }
   );
 
   if (!updatedCategory) {
+    console.log("Could not update. Category not found.");
     return next(new AppError('No category found with that ID.', 404));
   }
 
@@ -75,30 +95,35 @@ exports.updateCategory = asyncHandler(async (req, res, next) => {
   });
 });
 
-// 5. DELETE CATEGORY BY ID
+// 5. DELETE A CATEGORY BY ID
 // Route: DELETE /api/categories/:id
 exports.deleteCategory = asyncHandler(async (req, res, next) => {
   const categoryId = req.params.id;
+  console.log("Request to delete category ID: " + categoryId);
 
-  // Verify that the category exists first
+  // First check if the category even exists
   const category = await Category.findById(categoryId);
   if (!category) {
+    console.log("Category not found, cannot delete.");
     return next(new AppError('No category found with that ID.', 404));
   }
 
-  // Check if there are any products belonging to this category
+  // Very important check: do we have anime movies under this category?
+  // If yes, we shouldn't delete it or the movies will have no category!
   const productsCount = await Product.countDocuments({ category: categoryId });
   if (productsCount > 0) {
+    console.log("Cannot delete: category has " + productsCount + " movies linked to it.");
     return next(
       new AppError(
-        `Cannot delete category "${category.name}" because it is currently linked to ${productsCount} product(s). Please delete or update those products first!`,
+        'Cannot delete category "' + category.name + '" because it has ' + productsCount + ' movie(s) in it. Please delete the movies first!',
         400
       )
     );
   }
 
-  // Delete the category if no products are linked
+  // Delete it if there are no movies in it
   await Category.findByIdAndDelete(categoryId);
+  console.log("Deleted category successfully.");
 
   res.status(200).json({
     status: 'success',
@@ -106,3 +131,4 @@ exports.deleteCategory = asyncHandler(async (req, res, next) => {
     data: null
   });
 });
+

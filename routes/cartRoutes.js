@@ -3,17 +3,18 @@ const cartController = require('../controllers/cartController');
 
 const router = express.Router();
 
-// Route: /api/cart
+// Routes for "/api/cart" (user's active cart)
 router
   .route('/')
-  .get(cartController.getCart)
-  .post(cartController.addToCart)
-  .delete(cartController.clearCart);
+  .get(cartController.getCart) // get cart items
+  .post(cartController.addToCart) // add movie to cart
+  .delete(cartController.clearCart); // clear the cart
 
-// Route: /api/cart/:productId
+// Routes for "/api/cart/:productId" (manipulate item in cart)
 router
   .route('/:productId')
-  .put(cartController.updateCartItem)
-  .delete(cartController.removeFromCart);
+  .put(cartController.updateCartItem) // update quantity
+  .delete(cartController.removeFromCart); // remove movie from cart
 
 module.exports = router;
+

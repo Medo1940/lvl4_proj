@@ -1,16 +1,16 @@
 const mongoose = require('mongoose');
 
-// Define the blueprint for individual items in the cart
+// This schema defines individual items in the user's movie checkout cart
 const cartItemSchema = new mongoose.Schema({
   product: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Product',
-    required: [true, 'A cart item must reference a product.']
+    ref: 'Product', // references the movie (Product)
+    required: [true, 'Cart item must point to a movie.']
   },
   quantity: {
     type: Number,
-    required: [true, 'Quantity is required.'],
-    min: [1, 'Quantity cannot be less than 1. Please add at least 1 item.'],
+    required: [true, 'Quantity is needed!'],
+    min: [1, 'You must add at least 1 ticket/movie copy.'],
     default: 1,
     validate: {
       validator: Number.isInteger,
@@ -18,20 +18,17 @@ const cartItemSchema = new mongoose.Schema({
     }
   }
 });
-// {"userId": "default_user", 
-//   "items": [{"product": "64b4c6c8e4f6d0f9d1e4e8e5", "quantity": 1},
-//      {"product": "64b4c6c8e4f6d0f9d1e4e8e5", "quantity": 1}],
-//       "totalPrice": 0}
-// Define the blueprint for the entire Cart
+
+// This schema defines the main Cart model
 const cartSchema = new mongoose.Schema(
   {
     userId: {
       type: String,
-      default: 'default_user', // Since we don't have login, we use a single default cart
+      default: 'default_user', // since we don't have login, everybody shares this default cart
       required: true,
-      unique: true // One user can only have one active cart
+      unique: true // one cart per user
     },
-    items: [cartItemSchema], // Array of products added to the cart
+    items: [cartItemSchema], // list of items
     totalPrice: {
       type: Number,
       required: true,
@@ -39,10 +36,12 @@ const cartSchema = new mongoose.Schema(
     }
   },
   {
-    timestamps: true // Tracks when the cart was created and updated
+    // tracks when cart was created or updated
+    timestamps: true
   }
 );
 
 const Cart = mongoose.model('Cart', cartSchema);
 
 module.exports = Cart;
+
