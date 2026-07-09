@@ -1,8 +1,10 @@
-# Anime Movie Ticket & Rental REST API - Student Guide 🎬🍿
+# First Term Project - E-Commerce Backend — Products, Categories, Cart & Orders
 
-Welcome to the **Anime Movie Ticket & Rental REST API**! This project is a complete backend API built with **Node.js**, **Express.js**, and **MongoDB (Mongoose)** using the **MVC (Model-View-Controller)** project folder structure.
+Welcome to the **First Term Project E-Commerce Backend API**. This project is a complete server-side application built with **Node.js**, **Express.js**, and **MongoDB (Mongoose)** using the **MVC (Model-View-Controller)** structure.
 
-This guide will explain **what every folder does, the commands to run, and the URL endpoints** so you can learn how our web server works!
+Project repository: https://github.com/Medo1940/lvl4_proj.git
+
+This guide explains the project structure, how to run the application, and the available API endpoints.
 
 ---
 
